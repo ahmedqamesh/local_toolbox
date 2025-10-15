@@ -1,13 +1,12 @@
-#!/bin/bash
+
 ### Instruction
 Please add he following in your hooks: `$HOME/.git/hooks/prepare-commit-msg.sample`, then delete .sample in the file
 ```
+#!/bin/bash
 HOOK_FILE=$1
 COMMIT_MSG=$(head -n1 "$HOOK_FILE")
-
 # Define regex — notice: NO escaping, and NO quotes around PATTERN when testing
 PATTERN="^SCRUM-[0-9]+"
-
 if [[ ! $COMMIT_MSG =~ $PATTERN ]]; then
     echo ""
     echo "   ERROR! Bad commit message."

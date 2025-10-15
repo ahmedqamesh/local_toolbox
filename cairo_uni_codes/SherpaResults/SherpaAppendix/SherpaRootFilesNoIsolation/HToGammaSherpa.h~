@@ -1,0 +1,215 @@
+//////////////////////////////////////////////////////////
+// This class has been automatically generated on
+// Sun Nov 15 09:39:28 2015 by ROOT version 5.34/34
+// from TTree tree/tr
+// found on file: HTOGamma-Sherpa.root
+//////////////////////////////////////////////////////////
+
+#ifndef HToGammaSherpa_h
+#define HToGammaSherpa_h
+#include <TH2.h>
+#include <TStyle.h>
+#include <TCanvas.h>
+#include "TFile.h"
+#include <math.h>
+#include "TF2.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TH3F.h"
+#include "TLorentzVector.h"
+#include <time.h>
+#include <iostream>
+#include <vector>
+#include <TROOT.h>
+#include <TChain.h>
+#include <TFile.h>
+// Header file for the classes stored in the TTree if any.
+#include <vector>
+#include <vector>
+#include <TROOT.h>
+#include <TChain.h>
+#include <TFile.h>
+
+// Header file for the classes stored in the TTree if any.
+#include <vector>
+#include <vector>
+
+// Fixed size dimensions of array or collections stored in the TTree if any.
+
+class HToGammaSherpa {
+public :
+   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
+   Int_t           fCurrent; //!current Tree number in a TChain
+
+   // Declaration of leaf types
+   Int_t           event_runNo;
+   Int_t           event_evtNo;
+   Int_t           event_lumi;
+   Int_t           event_bunch;
+   vector<int>     *iGen;
+   vector<int>     *idGen;
+   vector<int>     *statusGen;
+   vector<float>   *ptGen;
+   vector<float>   *etaGen;
+   vector<float>   *phiGen;
+   vector<int>     *chargeGen;
+   vector<float>   *EnergyGen;
+   vector<float>   *pxGen;
+   vector<float>   *pyGen;
+   vector<float>   *pzGen;
+   vector<int>     *NbOfDaughters;
+   vector<float>   *McZmass;
+
+   // List of branches
+   TBranch        *b_event_runNo;   //!
+   TBranch        *b_event_evtNo;   //!
+   TBranch        *b_event_lumi;   //!
+   TBranch        *b_event_bunch;   //!
+   TBranch        *b_iGen;   //!
+   TBranch        *b_idGen;   //!
+   TBranch        *b_statusGen;   //!
+   TBranch        *b_ptGen;   //!
+   TBranch        *b_etaGen;   //!
+   TBranch        *b_phiGen;   //!
+   TBranch        *b_chargeGen;   //!
+   TBranch        *b_EnergyGen;   //!
+   TBranch        *b_pxGen;   //!
+   TBranch        *b_pyGen;   //!
+   TBranch        *b_pzGen;   //!
+   TBranch        *b_NbOfDaughters;   //!
+   TBranch        *b_McZmass;   //!
+
+   HToGammaSherpa(TTree *tree=0);
+   virtual ~HToGammaSherpa();
+   virtual Int_t    Cut(Long64_t entry);
+   virtual Int_t    GetEntry(Long64_t entry);
+   virtual Long64_t LoadTree(Long64_t entry);
+   virtual void     Init(TTree *tree);
+   virtual void     Loop();
+   virtual Bool_t   Notify();
+   virtual void     Show(Long64_t entry = -1);
+   int GDau1=0,GDau2=0,REC=0,GEN=0;
+	unsigned iGflag1 = -10,iGflag2 = -10;
+	float Et2,Eta2,Phi2,En2,ID2,State2;
+	float Et1,Eta1,Phi1,En1, ID1,State1;	
+        float mRecoMass;
+};
+
+#endif
+#ifdef HToGammaSherpa_cxx
+HToGammaSherpa::HToGammaSherpa(TTree *tree) : fChain(0) 
+{
+// if parameter tree is not specified (or zero), connect the file
+// used to generate this class and read the Tree.
+   if (tree == 0) {
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/Users/ahmedqamesh/Desktop/Master/HToGamma/SherpaResults/SherpaTrees/HTOGammaPDF-800-Sherpa.root");
+      if (!f || !f->IsOpen()) {
+         f = new TFile("/Users/ahmedqamesh/Desktop/Master/HToGamma/SherpaResults/SherpaTrees/HTOGammaPDF-800-Sherpa.root");
+      }
+      f->GetObject("tree",tree);
+
+   }
+   Init(tree);
+}
+
+HToGammaSherpa::~HToGammaSherpa()
+{
+   if (!fChain) return;
+   delete fChain->GetCurrentFile();
+}
+
+Int_t HToGammaSherpa::GetEntry(Long64_t entry)
+{
+// Read contents of entry.
+   if (!fChain) return 0;
+   return fChain->GetEntry(entry);
+}
+Long64_t HToGammaSherpa::LoadTree(Long64_t entry)
+{
+// Set the environment to read one entry
+   if (!fChain) return -5;
+   Long64_t centry = fChain->LoadTree(entry);
+   if (centry < 0) return centry;
+   if (fChain->GetTreeNumber() != fCurrent) {
+      fCurrent = fChain->GetTreeNumber();
+      Notify();
+   }
+   return centry;
+}
+
+void HToGammaSherpa::Init(TTree *tree)
+{
+   // The Init() function is called when the selector needs to initialize
+   // a new tree or chain. Typically here the branch addresses and branch
+   // pointers of the tree will be set.
+   // It is normally not necessary to make changes to the generated
+   // code, but the routine can be extended by the user if needed.
+   // Init() will be called many times when running on PROOF
+   // (once per file to be processed).
+
+   // Set object pointer
+   iGen = 0;
+   idGen = 0;
+   statusGen = 0;
+   ptGen = 0;
+   etaGen = 0;
+   phiGen = 0;
+   chargeGen = 0;
+   EnergyGen = 0;
+   pxGen = 0;
+   pyGen = 0;
+   pzGen = 0;
+   NbOfDaughters = 0;
+   McZmass = 0;
+   // Set branch addresses and branch pointers
+   if (!tree) return;
+   fChain = tree;
+   fCurrent = -1;
+   fChain->SetMakeClass(1);
+
+   fChain->SetBranchAddress("event_runNo", &event_runNo, &b_event_runNo);
+   fChain->SetBranchAddress("event_evtNo", &event_evtNo, &b_event_evtNo);
+   fChain->SetBranchAddress("event_lumi", &event_lumi, &b_event_lumi);
+   fChain->SetBranchAddress("event_bunch", &event_bunch, &b_event_bunch);
+   fChain->SetBranchAddress("iGen", &iGen, &b_iGen);
+   fChain->SetBranchAddress("idGen", &idGen, &b_idGen);
+   fChain->SetBranchAddress("statusGen", &statusGen, &b_statusGen);
+   fChain->SetBranchAddress("ptGen", &ptGen, &b_ptGen);
+   fChain->SetBranchAddress("etaGen", &etaGen, &b_etaGen);
+   fChain->SetBranchAddress("phiGen", &phiGen, &b_phiGen);
+   fChain->SetBranchAddress("chargeGen", &chargeGen, &b_chargeGen);
+   fChain->SetBranchAddress("EnergyGen", &EnergyGen, &b_EnergyGen);
+   fChain->SetBranchAddress("pxGen", &pxGen, &b_pxGen);
+   fChain->SetBranchAddress("pyGen", &pyGen, &b_pyGen);
+   fChain->SetBranchAddress("pzGen", &pzGen, &b_pzGen);
+   fChain->SetBranchAddress("NbOfDaughters", &NbOfDaughters, &b_NbOfDaughters);
+   fChain->SetBranchAddress("McZmass", &McZmass, &b_McZmass);
+   Notify();
+}
+
+Bool_t HToGammaSherpa::Notify()
+{
+   // The Notify() function is called when a new file is opened. This
+   // can be either for a new TTree in a TChain or when when a new TTree
+   // is started when using PROOF. It is normally not necessary to make changes
+   // to the generated code, but the routine can be extended by the
+   // user if needed. The return value is currently not used.
+
+   return kTRUE;
+}
+
+void HToGammaSherpa::Show(Long64_t entry)
+{
+// Print contents of entry.
+// If entry is not specified, print current entry
+   if (!fChain) return;
+   fChain->Show(entry);
+}
+Int_t HToGammaSherpa::Cut(Long64_t entry)
+{
+// This function may be called from Loop.
+// returns  1 if entry is accepted.
+// returns -1 otherwise.
+   return 1;
+}
+#endif // #ifdef HToGammaSherpa_cxx

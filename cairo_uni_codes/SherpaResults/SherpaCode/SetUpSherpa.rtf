@@ -1,0 +1,688 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1348\cocoasubrtf170
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Menlo-Bold;\f2\fnil\fcharset0 Menlo-Regular;
+\f3\fmodern\fcharset0 CourierNewPS-BoldMT;\f4\froman\fcharset0 Times-Roman;}
+{\colortbl;\red255\green255\blue255;\red64\green11\blue217;\red180\green36\blue25;\red38\green38\blue38;
+\red67\green67\blue67;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww25400\viewh13060\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0\fs24 \cf0 //============================SHERPA on lxplus====================================//\
+the datacard to generation of events is split into 4 steps:\
+1. initialization: the Feynman diagrams are constructed and translated to helicity amplitudes and stored in libraries\
+2. (makelibs) libraries are compiled\
+3. cross section calculation\
+4. event generation\
+//In /afs/cern.ch/user/a/aqamesh/Sherpacern/CMSSW_7_0_0/src/\
+//do \
+   [] cmsenv\
+//you can determine the default version\
+   [] scram tool info sherpa\
+////////////////////////////////////////////////////////////////////\
+   [] source /afs/cern.ch/user/t/thuer/public/Sherpa/sherpa_test.sh\
+///////////////////////////////////////////////////////////////////\
+   [] git cms-addpkg GeneratorInterface/SherpaInterface/\
+//This will create the directory\
+     $CMSSW_BASE/src/GeneratorInterface/SherpaInterface/data\
+//in this directory \
+ MakeSherpaLibs.sh  PrepareSherpaLibs.sh  install_sherpa.sh    \
+   []scram b\
+   []mkdir -p $CMSSW_BASE/src/A/B/python\
+   []mkdir -p $CMSSW_BASE/src/test\
+   []cp *SherpaLibs.sh $CMSSW_BASE/src/test/\
+   []cp *.dat* $CMSSW_BASE/src/test/\
+   []cd GeneratorInterface/SherpaInterface/data\
+   []cp /afs/cern.ch/user/t/thuer/public/Sherpa/Run.dat_MYTEST .\
+// to generate libraries and cross-section for Run.dat_MYTEST\
+   []./MakeSherpaLibs.sh -o LBCR -p MYTEST  [//./MakeSherpaLibs.sh -i ./ -p MYTEST -o LBCR]\
+// to supply the string identifying the process\
+   []./PrepareSherpaLibs.sh -p MYTEST  [//./PrepareSherpaLibs.sh -i ./ -p MYTEST]\
+// this will prepare the files  sherpa_MYTEST_MASTER.tgz and sherpa_MYTEST_MASTER_cff.py\
+//these files are called sherpacks and will be used as input for production\
+// move these files to the working space\
+   [] mv sherpa_MYTEST_MASTER_cff.py $CMSSW_BASE/src/A/B/python\
+   [] mv  sherpa_MYTEST_MASTER.tgz $CMSSW_BASE/src/A/B\
+//go to $CMSSW_BASE/src/A/B\
+   []scram b\
+//to check the generated python files\
+   []cmsDriver.py A/B/python/sherpa_MYTEST_MASTER_cff.py -s GEN -n 100 --no_exec --conditions auto:mc --eventcontent RAWSIM\
+   []cmsRun sherpa_MYTEST_MASTER_cff_py_GEN.py\
+//using another way \
+   []git cms-addpkg Configuration/Generator/python/ .\
+   []cmsDriver.py file.py -s GEN -n 10000 --no_exec --conditions auto:mc --eventcontent RAWSIM\
+   []cmsRun sherpa_MYTEST_MASTER_cff_py_GEN.py\
+   []edmDumpEventContent  H130GGgluonfusion_cfi_py_GEN.root\
+//=======Some important commands======== \
+   []cmsRun /afs/cern.ch/user/a/aqamesh/Sherpacern/CMSSW_7_2_0/src/MyCodeArea/Analyzer/test/Sherpa/test_HLT50_cfg.py\
+//============================SHERPA on Mac====================================//\
+For the whole package \
+http://davidchall.github.io/homebrew-hep/#compilers\
+\
+Homebrew will keep all your packages organised within /usr/local.\
+Executables are stored in /usr/local/bin\
+Libraries are stored in /usr/local/lib\
+Headers are stored in /usr/local/include\
+Other files are stored in /usr/local/share\
+\
+>>I have a problem with SHERPA update because of the Command Line Tools\
+to update the latest version of Command Line Tools first. \
+		https://developer.apple.com/downloads/\
+or \
+Rebuild your gcc in your system's environment\
+   brew reinstall --build-from-source gcc\
+./configure --prefix=/usr/local/Cellar/pythia8/8.186 --enable-shared --with-hepmc=/usr/local/opt/hepmc\
+>>To include some libraries \
+For example with MCFM support use brew install --with-mcfm sherpa\
+\
+>>To see the list of other possible options use \
+		brew info sherpa\
+>>To see how homebrew formula interacts with configure script see \
+		brew edit sherpa\
+\
+//============================SHERPA==================================================//\
+to setup Sherpa\
+./configure --enable-hepmc2 --enable-rivet --enable-analysis --enable-gzip\
+to Run sherpa you have to start with a card Run.dat\
+this file includes all the parameters needed for your process\
+some examples can be found in \
+/home/Ahmed/Documents/SHERPA-MC-2.1.1/share/Examples\
+(1)to run one of them \
+/home/Ahmed/Documents/SHERPA-MC-2.1.1/bin/Sherpa\
+\
+In my work I started with a new  Directory HTOGamma includes a Run file\
+to make the output in the root format just edit .dat file \
+	(1) in the Run scribt write\
+  ### NTuple output (please configure with '--enable-root')\
+  EVENT_OUTPUT Root[HToGamma];\
+	(2) Start Sherpa using the command line \
+ /home/Ahmed/Documents/SHERPA-MC-2.1.1/bin/Sherpa -f HTOGamma.dat\
+	(3) Sherpa will first create source code for its matrix-element calculations. This process will stop with a message instructing you to compile. \
+		Do so by running \
+		./makelibs -j4\
+	(4)Launch Sherpa again, using \
+ /home/Ahmed/Documents/SHERPA-MC-2.1.1/bin/Sherpa -f HTOGamma.dat\
+\
+=================================Sherpa============================================\
+//Sherpa on Mac is stored in /usr/local/Cellar/sherpa/2.1.1\
+The examples are stored in  /usr/local/Cellar/sherpa/2.1.1/share/SHERPA-MC/Examples/\
+(1)Start Sherpa using the command line \
+/usr/local/Cellar/sherpa/2.1.1/bin/Sherpa -f Run.dat\
+================================Root===============================================\
+to learn root\
+I think this link is very important\
+http://www-root.fnal.gov/root/\
+	(1)to inspect the contents of a tree\
+		TFile f("HTOGammatree.root")\
+		f->ls()\
+	(2) \
+///Dont understand this part\
+\
+6) When upgrading to a new Pythia subversion, and you want to use a\
+shared library, you should re-generate pythiaDict.cxx to reflect the\
+new classes:\
+\
+cd NewPythiaVersion/root examples\
+make dict\
+===========================Mohamed Hassan=======================================\
+//To Specifies the PDF set for hadronic bunch particles.\
+[] /cvmfs/cms.cern.ch/slc6_amd64_gcc481/external/sherpa/2.1.1-cms4/bin/Sherpa PDF_LIBRARY=LHAPDFSherpa SHOW_PDF_SETS=1  PDF_SET_VERSION\
+>>>>In PYTHIA8\
+Default CTEQ5L LO alpha_s(M_Z) = 0.127\
+used 	CTEQ66 \
+>>>>In Sherpa\
+\
+Cross section calculations CTEQ66   				\
+1000 events\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+
+\f1\b\fs22 \cf0 \CocoaLigature0 +----------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                    |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 27.021 pb
+\f2\b0 \cf0  +- ( \cf3 1.86864 pb = 6.91 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                    |
+\f2\b0 \
+
+\f1\b +----------------------------------------------------+
+\f0\b0\fs24 \CocoaLigature1 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 900 events\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+
+\f1\b\fs22 \cf0 \CocoaLigature0 +----------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                    |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 25.9379 pb
+\f2\b0 \cf0  +- ( \cf3 1.92098 pb = 7.4 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                    |
+\f2\b0 \
+
+\f1\b +----------------------------------------------------+\
+800 events\
++-----------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                     |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 26.8628 pb
+\f2\b0 \cf0  +- ( \cf3 2.12185 pb = 7.89 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                     |
+\f2\b0 \
+
+\f1\b +-----------------------------------------------------+\
+
+\f0\b0\fs24 \CocoaLigature1 700 events\
+
+\f1\b\fs22 \CocoaLigature0 +-----------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                     |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 26.7844 pb
+\f2\b0 \cf0  +- ( \cf3 2.32088 pb = 8.66 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                     |
+\f2\b0 \
+
+\f1\b +-----------------------------------------------------+
+\f2\b0 \
+
+\f1\b \
+600 events\
++-----------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                     |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 26.6431 pb
+\f2\b0 \cf0  +- ( \cf3 2.56182 pb = 9.61 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                     |
+\f2\b0 \
+
+\f1\b +-----------------------------------------------------+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+
+\f3 \cf0 500 events\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+
+\f1 \cf0 +------------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                      |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 27.9187 pb
+\f2\b0 \cf0  +- ( \cf3 2.98557 pb = 10.69 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                      |
+\f2\b0 \
+
+\f1\b +------------------------------------------------------+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+
+\f0\fs24 \cf0 \CocoaLigature1 400 events
+\b0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+
+\f1\b\fs22 \cf0 \CocoaLigature0 +----------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                    |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 28.059 pb
+\f2\b0 \cf0  +- ( \cf3 3.42533 pb = 12.2 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                    |
+\f2\b0 \
+
+\f1\b +----------------------------------------------------+\
+300 events\
++-----------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                     |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 28.5965 pb
+\f2\b0 \cf0  +- ( \cf3 4.23357 pb = 14.8 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                     |
+\f2\b0 \
+
+\f1\b +-----------------------------------------------------+
+\f0\b0\fs24 \CocoaLigature1 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+
+\b \cf0 200 events
+\b0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+
+\f1\b\fs22 \cf0 \CocoaLigature0 +------------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                      |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 33.2247 pb
+\f2\b0 \cf0  +- ( \cf3 5.71164 pb = 17.19 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                      |
+\f2\b0 \
+
+\f1\b +------------------------------------------------------+\
+100 events\
++------------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                      |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 40.3558 pb
+\f2\b0 \cf0  +- ( \cf3 10.2177 pb = 25.31 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                      |
+\f2\b0 \
+
+\f1\b +------------------------------------------------------+\
+50 events\
++-----------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                     |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 40.0375 pb
+\f2\b0 \cf0  +- ( \cf3 17.8603 pb = 44.6 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                     |
+\f2\b0 \
+
+\f1\b +-----------------------------------------------------+\
+20 events\
++------------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                      |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 27.7455 pb
+\f2\b0 \cf0  +- ( \cf3 13.2164 pb = 47.63 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                      |
+\f2\b0 \
+
+\f1\b +------------------------------------------------------+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+
+\f0\fs24 \cf0 \CocoaLigature1 10 events 
+\b0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+
+\f1\b\fs22 \cf0 \CocoaLigature0 +------------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                      |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 14.5752 pb
+\f2\b0 \cf0  +- ( \cf3 7.57493 pb = 51.97 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                      |
+\f2\b0 \
+
+\f1\b +------------------------------------------------------+
+\f0\b0\fs24 \CocoaLigature1 \
+\
+1000 events\
+
+\f1\b\fs22 \CocoaLigature0 +---------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                   |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 22.189 pb
+\f2\b0 \cf0  +- ( \cf3 1.3593 pb = 6.12 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                   |
+\f2\b0 \
+
+\f1\b +---------------------------------------------------+\
+800 events\
++----------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                    |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 21.6046 pb
+\f2\b0 \cf0  +- ( \cf3 1.5098 pb = 6.98 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                    |
+\f2\b0 \
+
+\f1\b +----------------------------------------------------+\
+700 events\
++-----------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                     |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 21.4577 pb
+\f2\b0 \cf0  +- ( \cf3 1.57162 pb = 7.32 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                     |
+\f2\b0 \
+
+\f1\b +-----------------------------------------------------+\
+600 events\
++-----------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                     |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 21.8849 pb
+\f2\b0 \cf0  +- ( \cf3 1.72638 pb = 7.88 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                     |
+\f2\b0 \
+
+\f1\b +-----------------------------------------------------+\
+500 events\
++-----------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                     |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 23.4254 pb
+\f2\b0 \cf0  +- ( \cf3 1.92476 pb = 8.21 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                     |
+\f2\b0 \
+
+\f1\b +-----------------------------------------------------+\
+400 EVENTS\
++----------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                    |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 20.4212 pb
+\f2\b0 \cf0  +- ( \cf3 2.02348 pb = 9.9 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                    |
+\f2\b0 \
+
+\f1\b +----------------------------------------------------+\
+300 events\
++-----------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                     |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 22.6543 pb
+\f2\b0 \cf0  +- ( \cf3 2.21861 pb = 9.79 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                     |
+\f2\b0 \
+
+\f1\b +-----------------------------------------------------+\
+200 events
+\f2\b0 \
+
+\f1\b +------------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                      |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 18.2431 pb
+\f2\b0 \cf0  +- ( \cf3 2.27104 pb = 12.44 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                      |
+\f2\b0 \
+
+\f1\b +------------------------------------------------------+\
+100 events\
++------------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                      |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 18.5339 pb
+\f2\b0 \cf0  +- ( \cf3 3.13183 pb = 16.89 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                      |
+\f2\b0 \
+
+\f1\b +------------------------------------------------------+\
+50 events\
++------------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                      |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 17.5942 pb
+\f2\b0 \cf0  +- ( \cf3 4.32094 pb = 24.55 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                      |
+\f2\b0 \
+
+\f1\b +------------------------------------------------------+\
+20 events\
++------------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                      |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 29.9059 pb
+\f2\b0 \cf0  +- ( \cf3 10.5356 pb = 35.22 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                      |
+\f2\b0 \
+
+\f1\b +------------------------------------------------------+\
+10 events\
++------------------------------------------------------+
+\f2\b0 \
+
+\f1\b |                                                      |
+\f2\b0 \
+
+\f1\b |
+\f2\b0   
+\f1\b Total XS
+\f2\b0  is 
+\f1\b \cf2 17.3191 pb
+\f2\b0 \cf0  +- ( \cf3 10.7315 pb = 61.96 %\cf0  )  
+\f1\b |
+\f2\b0 \
+
+\f1\b |                                                      |
+\f2\b0 \
+
+\f1\b +------------------------------------------------------+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+Isolation cut references\
+\pard\pardeftab720
+
+\f4\b0\fs54 \cf4 \expnd0\expndtw0\kerning0
+\CocoaLigature1 Bounding the Higgs Boson Width through Interferometry\
+\pard\pardeftab720
+
+\fs32 \cf5 \expnd0\expndtw0\kerning0
+Lance J. Dixon and Ye Li\
+Phys. Rev. Lett. 111, 111802 \'96 Published 13 September 2013}

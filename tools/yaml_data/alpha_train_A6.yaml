@@ -1,0 +1,232 @@
+__meta__:
+  #active_channels:
+    # - 9
+    #- 12
+    # - 13
+  passive_channels:
+    - 10
+    # - 11
+    - 14
+    # - 15
+  tileboards:
+    - A6
+  wingboard_conf: "A_site"
+  rocd_links_to_align:
+    "010":
+      - 0
+      # - 2
+    # "011":
+    #   - 0
+    "012":
+      # - 2
+      - 4
+    # "013":
+    #   - 4
+  econt_links_to_align:
+    "014":
+      - 1
+      - 0
+      - 2
+      - 3
+    # "015":
+    #   - 1
+    #   - 0
+    #   - 2
+    #   - 3
+
+# ext_trigger:
+#   ic:
+#     type: swamp.lpgbt_ic_emp.lpgbt_ic_emp
+#     cfg:
+#       connectionFile: file:///opt/hgc_utils/etc/connections.xml
+#       deviceName: x1
+#       emp_channel: 9
+#   lpgbt_ext_l1a:
+#     type: swamp.sc_lpgbt.sc_lpgbt
+#     transport: .ic
+#     cfg:
+#       address: 0x70
+#       init_config: configs/chips/lpgbt_VLDB+_ext_l1a.yaml
+
+alpha_train:
+  ic_12:
+    type: swamp.lpgbt_ic_emp.lpgbt_ic_emp
+    cfg:
+      connectionFile: file:///opt/hgc_utils/etc/connections.xml
+      deviceName: x1
+      emp_channel: 12
+  ec_12:
+    type: swamp.lpgbt_ic_emp.lpgbt_ec_emp
+    cfg: 
+      connectionFile: file:///opt/hgc_utils/etc/connections.xml
+      deviceName: x1
+      emp_channel: 12
+  ec_spare_A_site:
+    type: swamp.emp_interface.sca_transport_emp
+    cfg:
+      connectionFile: file:///opt/hgc_utils/etc/connections.xml
+      deviceName: x1
+      emp_channel: 12
+      sca_spare: 0
+      sca_address: 0x00
+
+  motherboard:
+    lpgbt_daq:
+      type: swamp.sc_lpgbt.sc_lpgbt
+      transport: ..ic_12
+      cfg:
+        address: 0x70
+        init_config: configs/chips/lpgbt_motherboard_DAQ.yaml
+    lpgbt_aux:
+      type: swamp.sc_lpgbt.sc_lpgbt
+      transport: .i2c_trg_0
+      cfg:
+        address: 0x70
+        init_config: configs/chips/lpgbt_motherboard_DAQ_AUX.yaml
+    lpgbt_trg:
+      type: swamp.sc_lpgbt.sc_lpgbt
+      transport: ..ec_12
+      cfg:
+        address: 0x71
+        init_config: configs/chips/lpgbt_motherboard_TRIG.yaml
+    vtrx:
+      type: swamp.vtrx.vtrx
+      transport: .i2c_daq_1
+      cfg:
+        address: 0x00
+        init_config:
+          0x00: 0x07
+    econt_1:
+      type: swamp.ECON.econ
+      transport: .i2c_trg_1
+      cfg:
+        address: 0x20
+        path_to_json : regmaps/ECONT_I2C_params_regmap.json
+        electronic_id: 0x400
+        init_config: configs/aligner/A_site/init_econt_1_A6.yaml
+        lpgbt_links_used:
+          - 1
+          - 0
+          - 2
+          - 3
+    i2c_daq_1:
+      type: swamp.lpgbt_i2c.lpgbt_i2c
+      carrier: .lpgbt_daq
+      cfg:
+        bus: 1
+        clk_freq: 0
+    i2c_trg_0:
+      type: swamp.lpgbt_i2c.lpgbt_i2c
+      carrier: .lpgbt_trg
+      cfg:
+        bus: 0
+        max_packet_size: 8
+        clk_freq: 3
+    i2c_trg_1:
+      type: swamp.lpgbt_i2c.lpgbt_i2c
+      carrier: .lpgbt_trg
+      cfg:
+        bus: 1
+    i2c_trg_2:
+      type: swamp.lpgbt_i2c.lpgbt_i2c
+      carrier: .lpgbt_trg
+      cfg:
+        bus: 2
+    pin_MB_ECON_RE_Hb:
+      type: swamp.lpgbt_gpio.lpgbt_gpio_pin
+      carrier: .lpgbt_daq
+      cfg:
+        pin: 0
+        dir: output
+    pin_MB_ECON_RE_Sb:
+      type: swamp.lpgbt_gpio.lpgbt_gpio_pin
+      carrier: .lpgbt_daq
+      cfg:
+        pin: 1
+        dir: output
+    pin_MB_FAKE_ECON_RSTB:
+      type: swamp.lpgbt_gpio.lpgbt_gpio_pin
+      carrier: .lpgbt_daq
+      cfg:
+        pin: 13
+        dir: output
+    pin_MB_T_RSTB:
+      type: swamp.lpgbt_gpio.lpgbt_gpio_pin
+      carrier: .lpgbt_daq
+      cfg:
+        pin: 14
+        dir: output
+    pin_MB_T_READY:
+      type: swamp.lpgbt_gpio.lpgbt_gpio_pin
+      carrier: .lpgbt_daq
+      cfg:
+        pin: 15
+        dir: input
+
+  tileboard_A6:
+    gbtsca_A6:
+      type: swamp.gbtsca.gbtsca
+      transport: ..ec_spare_A_site
+      cfg:
+        address: 0x00
+    i2c_sca_A6:
+      type: swamp.gbtsca_i2c.gbtsca_i2c
+      carrier: .gbtsca_A6
+      cfg:
+        pin: 0
+    hgcroc_A6:
+      type: swamp.roc.roc
+      transport: .i2c_sca_A6
+      cfg:
+        address: 0x28
+        regmapfile: regmaps/HGCROC3_sipm_I2C_params_regmap_dict.pickle
+        # init_config: configs/chips/sipm_roc0_simple_fixed_adc.yaml
+        init_config: configs/chips/sipm_roc0_pedestal.yaml
+    pin_A6_pwr_enable:
+      type: swamp.lpgbt_gpio.lpgbt_gpio_pin
+      carrier: ..motherboard.lpgbt_trg
+      cfg:
+        pin: 7
+        dir: output
+    pin_A6_sca_reset:
+      type: swamp.lpgbt_gpio.lpgbt_gpio_pin
+      carrier: ..motherboard.lpgbt_trg
+      cfg:
+        pin: 8
+        dir: output
+    pin_A6_ldo_enable:
+      type: swamp.gbtsca_gpio.gbtsca_gpio_pin
+      carrier: .gbtsca_A6
+      cfg:
+        pin: 22
+        dir: output
+    pin_A6_ldo_softst:
+      type: swamp.gbtsca_gpio.gbtsca_gpio_pin
+      carrier: .gbtsca_A6
+      cfg:
+        pin: 23
+        dir: output
+    pin_A6_hard_reset:
+      type: swamp.gbtsca_gpio.gbtsca_gpio_pin
+      carrier: .gbtsca_A6
+      cfg:
+        pin: 2
+        dir: output
+    pin_A6_soft_reset:
+      type: swamp.gbtsca_gpio.gbtsca_gpio_pin
+      carrier: .gbtsca_A6
+      cfg:
+        pin: 4
+        dir: output
+    pin_A6_roc_pll_lock:
+      type: swamp.gbtsca_gpio.gbtsca_gpio_pin
+      carrier: .gbtsca_A6
+      cfg:
+        pin: 0
+        dir: input
+    pin_A6_roc_error:
+      type: swamp.gbtsca_gpio.gbtsca_gpio_pin
+      carrier: .gbtsca_A6
+      cfg:
+        pin: 1
+        dir: input

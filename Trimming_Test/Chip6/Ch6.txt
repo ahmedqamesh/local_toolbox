@@ -1,5 +1,0 @@
-Old Carrier board
-Optimal BandGap D 598 mV
-Optimal Freq	5 9.95 MHz
-
-

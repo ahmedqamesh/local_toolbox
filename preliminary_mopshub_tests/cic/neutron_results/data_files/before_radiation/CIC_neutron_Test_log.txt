@@ -1,2 +1,0 @@
-Test_date: 06_18_2024
-CIC_ID = v4_1

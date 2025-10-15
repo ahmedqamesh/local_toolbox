@@ -3,7 +3,7 @@
 Please add he following in your hooks: $HOME/.git/hooks/prepare-commit-msg.sample and delete .sample in the file
 ```
 HOOK_FILE=$1
-COMMIT_MSG=head -n1 $HOOK_FILE
+COMMIT_MSG=`head -n1 $HOOK_FILE`
 
 #PATTERN="^[A-Z][A-Z0-9]+-[0-9]+"
 PATTERN="^LW+-[0-9]+"

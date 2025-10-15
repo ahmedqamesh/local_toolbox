@@ -6,7 +6,7 @@ HOOK_FILE=$1
 COMMIT_MSG=$(head -n1 "$HOOK_FILE")
 PATTERN="^SCRUM-[0-9]\+"
 echo "$COMMIT_MSG" | grep -Eq "$PATTERN"
-if [[ ! "$COMMIT_MSG" =~ $PATTERN ]]; then
+if [[ ! $COMMIT_MSG =~ $PATTERN ]]; then
         echo ""
         echo " ERROR! Bad commit message. "
         echo " '$COMMIT_MSG' is missing JIRA Ticket Number."

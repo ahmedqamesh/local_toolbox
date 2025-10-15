@@ -15,4 +15,5 @@ if [[ ! ${COMMIT_MSG} =~ $PATTERN ]]; then
         echo ""
         exit 1
 fi
+
 ```

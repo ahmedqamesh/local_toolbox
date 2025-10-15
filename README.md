@@ -4,15 +4,17 @@ Please add he following in your hooks: $HOME/.git/hooks/prepare-commit-msg.sampl
 ```
 HOOK_FILE=$1
 COMMIT_MSG=$(head -n1 "$HOOK_FILE")
-PATTERN="^SCRUM-[0-9]\+"
-echo "$COMMIT_MSG" | grep -Eq "$PATTERN"
+
+# Define regex — notice: NO escaping, and NO quotes around PATTERN when testing
+PATTERN="^SCRUM-[0-9]+"
+
 if [[ ! $COMMIT_MSG =~ $PATTERN ]]; then
-        echo ""
-        echo " ERROR! Bad commit message. "
-        echo " '$COMMIT_MSG' is missing JIRA Ticket Number."
-        echo " example: 'SCRUM-1234: my commit'"
-        echo ""
-        exit 1
+    echo ""
+    echo "❌ ERROR! Bad commit message."
+    echo "   '$COMMIT_MSG' is missing a JIRA ticket number."
+    echo "   Example: 'SCRUM-1234: Implement feature X'"
+    echo ""
+    exit 1
 fi
 
 ```

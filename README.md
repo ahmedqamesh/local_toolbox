@@ -1,6 +1,6 @@
 
-### Instruction
-Please add he following in your hooks: `$HOME/.git/hooks/prepare-commit-msg.sample`, then delete .sample in the file
+### Instructions:
+1. Please add he following in your hooks: `$HOME/.git/hooks/prepare-commit-msg.sample`, then delete .sample in the file
 ```
 #!/bin/bash
 HOOK_FILE=$1
@@ -15,5 +15,5 @@ if [[ ! $COMMIT_MSG =~ $PATTERN ]]; then
     echo ""
     exit 1
 fi
-
 ```
+

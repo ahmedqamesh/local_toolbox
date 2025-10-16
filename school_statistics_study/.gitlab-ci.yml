@@ -1,0 +1,53 @@
+default:
+  # group common settings (e.g. script policy, retry policy, or tags),
+  tags:
+    - "kgr1-instance-standard"
+  image: "gitlab/gitlab-runner:ubuntu"
+  before_script:  
+    - apt-get update -qq
+    - apt-get install -y python3 python3-flake8
+
+stages:
+  - lint
+  - build
+  - test
+  - docs
+
+check_style_stage:
+  stage: lint
+  script:
+    - python3 -m flake8 main_lib tests 
+
+build_stage:
+  stage: build
+  script:
+    - echo "Nothing to build for this Python project"
+
+unittest_stage:
+  stage: test
+  before_script:  
+    - apt-get update -qq
+    - apt-get install -y python3
+  script: 
+    - echo "Testing stage"  
+    - ./run_test.sh
+
+documentation_stage:
+  stage: docs
+  image: python:3.11
+  variables:
+    PIP_DISABLE_PIP_VERSION_CHECK: "1"
+    PIP_NO_CACHE_DIR: "1"
+  before_script:  
+    # Create a virtual environment:
+    - python -m venv venv
+    - source venv/bin/activate  # Linux/macOS
+    - pip install sphinx sphinx_rtd_theme sphinx-autodoc-typehints  # or your theme of choice
+  script: 
+    #Install the calculator in editable mode:
+    - pip install -e .
+    - make -C docs html
+  artifacts:
+    paths:
+      - docs/build/html
+    expire_in: 1 week

@@ -21,17 +21,17 @@ jobs:
 
       - name: Install flake8
         run: |
+          cd school_statistics_study
           python -m venv venv
           source venv/bin/activate
-          cd school_statistics_study
           pip install -r requirements.txt
           sudo apt-get update -qq
           sudo apt-get install -y python3-flake8
 
       - name: Run Flake8 style check
         run: |
-          source venv/bin/activate
           cd school_statistics_study
+          source venv/bin/activate
           python3 -m flake8 main_lib tests
 
   build:
@@ -60,8 +60,8 @@ jobs:
 
       - name: Run test script
         run: |
-          source venv/bin/activate
           cd school_statistics_study
+          source venv/bin/activate
           chmod +x ./run_test.sh
           ./run_test.sh
 
@@ -80,8 +80,8 @@ jobs:
 
       - name: Install Sphinx dependencies
         run: |
-          source venv/bin/activate
           cd school_statistics_study
+          source venv/bin/activate
           pip install sphinx sphinx_rtd_theme sphinx-autodoc-typehints
           pip install -e .
 

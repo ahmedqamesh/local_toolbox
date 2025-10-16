@@ -26,14 +26,8 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y python3-flake8
 
-      - name: Debug path
-        run: |
-          pwd
-          ls -R
-
       - name: Run Flake8 style check
         run: |
-          source venv/bin/activate
           cd school_statistics_study
           python3 -m flake8 main_lib tests
 

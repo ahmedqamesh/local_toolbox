@@ -23,6 +23,7 @@ jobs:
         run: |
           python -m venv venv
           source venv/bin/activate
+          pip install -r requirements.txt
           sudo apt-get update -qq
           sudo apt-get install -y python3-flake8
 
@@ -30,8 +31,6 @@ jobs:
         run: |
           source venv/bin/activate
           cd school_statistics_study
-          pip install -r requirements.txt
-          pip install flake8  
           python3 -m flake8 main_lib tests
 
   build:
@@ -60,7 +59,8 @@ jobs:
 
       - name: Run test script
         run: |
-          cd local_workspace/school_statistics_study
+          source venv/bin/activate
+          cd school_statistics_study
           chmod +x ./run_test.sh
           ./run_test.sh
 
@@ -79,9 +79,8 @@ jobs:
 
       - name: Install Sphinx dependencies
         run: |
-          ls
           source venv/bin/activate
-          cd local_workspace/school_statistics_study
+          cd school_statistics_study
           pip install sphinx sphinx_rtd_theme sphinx-autodoc-typehints
           pip install -e .
 

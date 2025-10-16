@@ -1,0 +1,3 @@
+[submodule "kseta/scientific-calculator"]
+	path = kseta/scientific-calculator
+	url = https://gitlab.kit.edu/ahmed.qamesh/scientific-calculator.git

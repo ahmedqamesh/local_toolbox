@@ -91,7 +91,9 @@ jobs:
           pip install -e .
 
       - name: Build documentation
-        run: make -C docs html
+        run: |
+          cd school_statistics_study
+          make -C docs html
 
       - name: Upload docs artifact
         uses: actions/upload-artifact@v4

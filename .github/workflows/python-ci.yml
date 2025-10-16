@@ -19,13 +19,19 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Flake8 style check
+      - name: Install flake8
         run: |
           python -m venv venv
           source venv/bin/activate
           sudo apt-get update -qq
           sudo apt-get install -y python3-flake8
+
+      - name: Run Flake8 style check
+        run: |
+          source venv/bin/activate
           cd school_statistics_study
+          pip install -r requirements.txt
+          pip install flake8  
           python3 -m flake8 main_lib tests
 
   build:

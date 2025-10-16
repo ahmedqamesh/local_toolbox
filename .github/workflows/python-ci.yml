@@ -29,7 +29,8 @@ jobs:
       - name: Run Flake8 style check
         run: |
           source venv/bin/activate
-          cd local_workspace/school_statistics_study
+          ls
+          cd school_statistics_study
           python3 -m flake8 main_lib tests
 
   build:

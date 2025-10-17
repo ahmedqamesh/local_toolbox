@@ -81,7 +81,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Sphinx dependencies
+      - name: Build documentation
         run: |
           cd school_statistics_study
           python -m venv venv
@@ -89,10 +89,6 @@ jobs:
           pip install -r requirements.txt
           pip install sphinx sphinx_rtd_theme sphinx-autodoc-typehints
           pip install -e .
-
-      - name: Build documentation
-        run: |
-          cd school_statistics_study
           make -C docs html
 
       - name: Upload docs artifact

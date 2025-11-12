@@ -1,5 +1,7 @@
+# About The Project
 
 ### Instructions:
+
 1. Please add he following in your hooks: `$HOME/.git/hooks/prepare-commit-msg.sample`, then delete .sample in the file
 ```
 #!/bin/bash

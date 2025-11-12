@@ -1,5 +1,5 @@
 # About The Project
-
+The repo includes several packages, specially made for educational purposes.
 ### Instructions:
 
 1. Please add he following in your hooks: `$HOME/.git/hooks/prepare-commit-msg.sample`, then delete .sample in the file

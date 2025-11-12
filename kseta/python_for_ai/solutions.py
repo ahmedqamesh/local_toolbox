@@ -65,11 +65,18 @@ solution_call1="""int() is simply the int constructor, which can be used for cas
 solution_call2="""The logging should not spoil the runtime measurement!"""
 
 # --- Speed ---
-solution_speed0=""""""
-solution_speed1="""Printing (or logging) in tight loops destroys performance in any language,
+solution_speed0="""Often does not make a difference. In some cases, things like list comprehensions can be faster, as internal optimiyations might be used."""
+solution_speed1="""Printing (or logging) in loops destroys performance in any language,
 but in Python, it is even worse because print() involves type conversion, function call overhead, reference management, and GIL synchronization!"""
-solution_speed2="""C implements low-level arithmetics and high-performant, compiled loops. On top, Python has a comparably large interpreter overhead."""
+solution_speed2="""C implements low-level arithmetics and high-performant, pre-compiled, and optimized loops. On top, Python has the comparably large interpreter overhead."""
+solution_speed3="""The results differ in some late digits! This is due to different precisions. This, you have always to take into account for your computations. E.g. if you need high precision, you MUST use float64, there is no way round and no way to optimize this.""" 
+solution_speed4="""When you define a function, Python compiles its bytecode once and it is reused each time you call it.
+For the global code, the entire loop is recompiled, which can cause an overhead.
+On top, inside the function, the variables are local, which is faster to access than global variables.
+Because in the global scope, variables are internally stored in a dictionary, the globals(), and accessing them is essentially a hash lookup. This is in general fast, but in tight loops, this is done thousands of times and adds up. This then can make loops in the global scope slightly slower.
 
+In a function, the variables are as well saved in a dict, the locals(), but accessing works differently. For each function call, a frame object pointer is created, which represents one execution fram and holds the functions local variables, arguments, and execution state. Inside this frame object, the variables are stored in optimized C arrays (so-called fast locals array) and can be accessed through a simple array access by index, which is way faster than a dict look up (as well O(1) complexity, but withput the overheads). On top, Python provides optimized bytecodes for these operations, the LOAD_FAST and STORE_FAST, which are used to access the array directly.
+This shows, using functions is a good practise! Not only, because it is organizing and structuring your code, it also can make it more performant!
 
-
-
+Further reading: https://peps.python.org/pep-0558/"""
+solution_speed5="""Removing the cast allows Python to do internal optimization, which is often based on C implementations and therefore faster. This shows that if you are not entirely aware of how things are handled, it can be better to let it just do its job. But: we can do better!""" 
